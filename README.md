@@ -58,7 +58,7 @@ A Qt Widgets-based graphical user interface for MQTT message testing and monitor
 2.  Create a build directory and run CMake:
     ```bash
     mkdir build && cd build
-    cmake .. -G "MinGW Makefiles" -DCMAKE_PREFIX_PATH="path/to/Qt/6.10.1/mingw_64"
+    cmake .. -G "MinGW Makefiles" -DCMAKE_PREFIX_PATH="path/to/Qt/6.10.3/mingw_64"
     ```
 3.  Build the project:
     ```bash
