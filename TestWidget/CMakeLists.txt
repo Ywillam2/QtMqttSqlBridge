@@ -13,17 +13,21 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql Network Mqtt)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql Network Mqtt)
 
 set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
+    main.cpp
+    mainwindow.h
+    mainwindow.cpp
+    mqttmanager.h
+    mqttmanager.cpp
+    mqttdbtestbridge.h
+    mqttdbtestbridge.cpp
+    sqlmanagerwrapper.h
+    sqlmanagerwrapper.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(TestWidget
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        sqlmanagerwrapper.h sqlmanagerwrapper.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET TestWidget APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -43,7 +47,7 @@ else()
     endif()
 endif()
 
-target_link_libraries(TestWidget PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt6::Core Qt6::Sql Qt6::Mqtt dbManager)
+target_link_libraries(TestWidget PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Sql Qt${QT_VERSION_MAJOR}::Mqtt dbManager)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
@@ -57,6 +61,7 @@ set_target_properties(TestWidget PROPERTIES
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
 include(GNUInstallDirs)

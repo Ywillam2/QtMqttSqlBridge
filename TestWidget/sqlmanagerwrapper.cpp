@@ -1,9 +1,7 @@
 #include "sqlmanagerwrapper.h"
-#include "dbmanager.h"
-SqlManagerWrapper::SqlManagerWrapper(QObject *parent)
-    : QObject(parent), sqlManager(DbManager::instance())
-{
 
+SqlManagerWrapper::SqlManagerWrapper(QObject *parent) : QObject(parent), sqlManager(DbManager::instance())
+{
 }
 
 bool SqlManagerWrapper::connect(const QString& host,
@@ -28,4 +26,166 @@ bool SqlManagerWrapper::isConnected() const
 QString SqlManagerWrapper::lastError() const
 {
     return sqlManager.lastError();
+}
+
+bool SqlManagerWrapper::beginTransaction()
+{
+    return sqlManager.beginTransaction();
+}
+
+bool SqlManagerWrapper::commitTransaction()
+{
+    return sqlManager.commitTransaction();
+}
+
+bool SqlManagerWrapper::rollbackTransaction()
+{
+    return sqlManager.rollbackTransaction();
+}
+
+bool SqlManagerWrapper::inTransaction() const
+{
+    return sqlManager.inTransaction();
+}
+
+bool SqlManagerWrapper::createDatabase(const QString& databaseName)
+{
+    return sqlManager.createDatabase(databaseName);
+}
+
+bool SqlManagerWrapper::dropDatabase(const QString& databaseName)
+{
+    return sqlManager.dropDatabase(databaseName);
+}
+
+bool SqlManagerWrapper::useDatabase(const QString& databaseName)
+{
+    return sqlManager.useDatabase(databaseName);
+}
+
+bool SqlManagerWrapper::isDatabaseExists(const QString& databaseName) const
+{
+    return sqlManager.isDatabaseExists(databaseName);
+}
+
+QStringList SqlManagerWrapper::listDatabases()
+{
+    QStringList databases;
+    const QList<QMap<QString, QVariant>> result = sqlManager.query(QStringLiteral("SHOW DATABASES"));
+    for (const auto &row : result) {
+        if (!row.isEmpty())
+            databases.append(row.constBegin().value().toString());
+    }
+    return databases;
+}
+
+QStringList SqlManagerWrapper::listTables(const QString &databaseName)
+{
+    if (!databaseName.isEmpty() && !sqlManager.useDatabase(databaseName))
+        return {};
+
+    QStringList tables;
+    const QList<QMap<QString, QVariant>> result = sqlManager.query(QStringLiteral("SHOW TABLES"));
+    for (const auto &row : result) {
+        if (!row.isEmpty())
+            tables.append(row.constBegin().value().toString());
+    }
+    return tables;
+}
+
+bool SqlManagerWrapper::createTable(const QString &tableName, const QVariantMap &fields)
+{
+    QMap<QString, QString> f;
+    for (auto it = fields.constBegin(); it != fields.constEnd(); ++it)
+        f[it.key()] = it.value().toString();
+    return sqlManager.createTable(tableName, f);
+}
+
+bool SqlManagerWrapper::dropTable(const QString &tableName)
+{
+    return sqlManager.dropTable(tableName);
+}
+
+bool SqlManagerWrapper::isTableExists(const QString &tableName) const
+{
+    return sqlManager.isTableExists(tableName);
+}
+
+bool SqlManagerWrapper::insertRecord(const QString &tableName, const QVariantMap &values)
+{
+    QMap<QString, QVariant> mapValues;
+    for (auto it = values.constBegin(); it != values.constEnd(); ++it)
+        mapValues.insert(it.key(), it.value());
+    return sqlManager.insert(tableName, mapValues);
+}
+
+bool SqlManagerWrapper::updateRecord(const QString &tableName,
+                                     const QVariantMap &values,
+                                     const QString &condition)
+{
+    QMap<QString, QVariant> mapValues;
+    for (auto it = values.constBegin(); it != values.constEnd(); ++it)
+        mapValues.insert(it.key(), it.value());
+    return sqlManager.update(tableName, mapValues, condition);
+}
+
+bool SqlManagerWrapper::insert(const QString &tableName,
+                               const QMap<QString, QVariant> &values)
+{
+    return sqlManager.insert(tableName, values);
+}
+
+bool SqlManagerWrapper::insertBatch(const QString &tableName,
+                                    const QList<QMap<QString, QVariant>> &valuesList)
+{
+    return sqlManager.insertBatch(tableName, valuesList);
+}
+
+bool SqlManagerWrapper::update(const QString &tableName,
+                               const QMap<QString, QVariant> &values,
+                               const QString &condition)
+{
+    return sqlManager.update(tableName, values, condition);
+}
+
+bool SqlManagerWrapper::remove(const QString &tableName, const QString &condition)
+{
+    return sqlManager.remove(tableName, condition);
+}
+
+bool SqlManagerWrapper::exec(const QString &sql)
+{
+    return sqlManager.exec(sql);
+}
+
+QVariantList SqlManagerWrapper::query(const QString &sql)
+{
+    QList<QMap<QString, QVariant>> result = sqlManager.query(sql);
+    QVariantList variantList;
+    for (const auto &map : result) {
+        variantList.append(QVariant(map));
+    }
+    return variantList;
+}
+
+QVariantList SqlManagerWrapper::select(
+    const QString &tableName,
+    const QString &fields,
+    const QString &condition,
+    const QString &orderBy,
+    int limit,
+    int offset
+    )
+{
+    QList<QMap<QString, QVariant>> result = sqlManager.select(tableName, fields, condition, orderBy, limit, offset);
+    QVariantList variantList;
+    for (const auto &map : result) {
+        variantList.append(QVariant(map));
+    }
+    return variantList;
+}
+
+QVariant SqlManagerWrapper::lastInsertId() const
+{
+    return sqlManager.lastInsertId();
 }
